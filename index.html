@@ -2045,9 +2045,20 @@ body[data-tab=combine] .filters>label:not(.keep){display:none!important}
 <style id="mobile-v1">
 html{-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
 body{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-#stzUpdBox{position:fixed!important;left:-9999px!important;top:0!important;bottom:auto!important;right:auto!important;opacity:0;pointer-events:none}
+#mSync,#mReset{display:none}
+#mExp,#mPub{margin-left:6px}
+#syncDlg{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:100000;padding:16px}
+#syncDlg.on{display:flex}
+#syncDlg .bx{background:var(--card,#fff);color:var(--ink,#14202b);border-radius:14px;max-width:460px;width:100%;padding:18px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+#syncDlg h3{margin:0 0 6px}#syncDlg p{margin:4px 0 10px;font-size:12.5px;color:var(--mute,#5d6b78)}
+#syncDlg label{display:block;margin:8px 0;font-size:12px}#syncDlg input{width:100%;margin-top:3px;padding:8px;border:1px solid var(--line,#ddd);border-radius:8px;font:inherit;background:var(--card,#fff);color:inherit}
+#syncDlg .ac{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 svg[data-tz]{touch-action:pan-y}
 @media(max-width:900px){
+ #stzUpdBox{position:fixed!important;left:-9999px!important;top:0!important;bottom:auto!important;right:auto!important;opacity:0;pointer-events:none}
+ #mExp,#mPub{display:none!important}
+ #mSync{display:inline-flex;align-items:center;justify-content:center}
+ #mReset{display:block}
  body{padding-bottom:calc(86px + env(safe-area-inset-bottom))!important;margin:0!important}
  main{padding:6px 12px 20px!important;margin:0!important;max-width:100%!important;overflow-x:clip}
  main *{min-width:0}
@@ -2057,8 +2068,8 @@ svg[data-tz]{touch-action:pan-y}
  .hdrow{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important}
  .hdrow .row{display:flex!important;flex-wrap:nowrap!important;gap:6px!important;align-items:center}
  .hdrow .pill{font-size:11px!important;padding:6px 10px!important;border-radius:999px!important;white-space:nowrap;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
- #hdrUpd,#mPaste{flex:none;font-size:12.5px!important;padding:8px 12px!important;min-height:36px;border-radius:10px!important}
- #mPaste{border:1px solid var(--line);background:var(--card,#fff);color:inherit;font-weight:700;cursor:pointer}
+ #hdrUpd,#mSync{flex:none;font-size:12.5px!important;padding:8px 12px!important;min-height:36px;border-radius:10px!important}
+ #mSync{border:1px solid var(--line);background:var(--card,#fff);color:inherit;font-weight:700;cursor:pointer}
  #themeBtn{font-size:0!important;padding:8px 10px!important;min-height:36px;margin-left:0;flex:none}
  #themeBtn svg{margin:0!important}
  .global-search{width:100%!important;margin:8px 0 0!important;max-width:none!important}
@@ -2093,10 +2104,10 @@ svg[data-tz]{touch-action:pan-y}
  #modal .box{max-width:none!important;width:100%!important;max-height:88vh!important;border-radius:20px 20px 0 0!important;padding:16px 14px calc(18px + env(safe-area-inset-bottom))!important}
  .toast{bottom:calc(92px + env(safe-area-inset-bottom))!important}
  .note{font-size:11.5px}
- #mReset{display:block;margin:6px auto 0}
+ #mReset{margin:6px auto 0}
  .hdrow .pill{flex:1 1 0!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis;white-space:nowrap}
 }
-@media(max-width:390px){#hdrUpd,#mPaste{padding:8px 9px!important}.hdrow .pill{font-size:10.5px!important;padding:6px 7px!important}.hdrow .row{gap:5px!important}}
+@media(max-width:390px){#hdrUpd,#mSync{padding:8px 9px!important}.hdrow .pill{font-size:10.5px!important;padding:6px 7px!important}.hdrow .row{gap:5px!important}}
 </style>
 <script id="mobile-v1-js">
 (function(){
@@ -2109,12 +2120,82 @@ svg[data-tz]{touch-action:pan-y}
   labels();moveSearch();
   var u=$('#hdrUpd');if(u&&u.lastChild&&u.lastChild.nodeType===3)u.lastChild.textContent='Update';
   var row=$('.hdrow .row');
-  if(row&&!$('#mPaste')){var p=document.createElement('button');p.id='mPaste';p.textContent='Paste';p.onclick=function(){upd(1)};if(u)u.after(p);else row.appendChild(p)}
+  if(row&&!$('#mSync')){
+   var mk=function(id,t,cls,fn){var b=document.createElement('button');b.id=id;b.type='button';b.textContent=t;b.className=cls||'';b.onclick=fn;return b};
+   var a=mk('mSync','\u21bb Sync','',function(){SYNC.pull(true)}),e=mk('mExp','Export data.json','btn',function(){SYNC.exportFile()}),g=mk('mPub','Publish to GitHub','btn',function(){SYNC.publish()});
+   if(u){u.after(a);a.after(e);e.after(g)}else{row.appendChild(a);row.appendChild(e);row.appendChild(g)}
+  }
   var m=$('main');
   if(m&&!$('#mReset')){var r=document.createElement('button');r.id='mReset';r.className='btn noprint';r.textContent='Reset saved updates';r.onclick=function(){upd(2)};m.appendChild(r)}
   if(matchMedia('(max-width:900px)').matches){var fd=$('details.fd');if(fd)fd.open=false}
   var nav=$('.nav');if(nav&&!nav._m){nav._m=1;nav.addEventListener('click',function(){window.scrollTo(0,0);setTimeout(closeFd,60);setTimeout(closeFd,350)})}
  }
+ /* ===== desktop -> mobile data sync via data.json next to this file ===== */
+ var SK='stratzy_sync_cfg_v1',SYNC={busy:false,last:0};
+ function cfg(){try{return JSON.parse(localStorage.getItem(SK)||'{}')}catch(e){return {}}}
+ function toast(m){try{window.showToast?window.showToast(m,3500):console.log(m)}catch(e){}}
+ function lastDay(){var m=0;for(var i=0;i<D.r.length;i++)if(D.r[i][1]>m)m=D.r[i][1];return m}
+ function fmt(d){return new Date(d*864e5).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'})}
+ function refresh(){
+  try{algoList();renderBar();run()}catch(e){console.warn(e)}
+  var p=$('#pillT');if(p)p.textContent='Data till '+fmt(lastDay());
+  var on=document.querySelector('.nav button.on');if(on)on.click();
+  try{persistData()}catch(e){}
+ }
+ SYNC.pull=async function(manual){
+  if(SYNC.busy)return;SYNC.busy=true;SYNC.last=Date.now();
+  try{
+   var res=await fetch('data.json?_ts='+Date.now(),{cache:'no-store'});
+   if(!res.ok)throw new Error('HTTP '+res.status);
+   var j=await res.json();
+   if(!j||!Array.isArray(j.algos)||!Array.isArray(j.rows))throw new Error('data.json has the wrong format');
+   var idx=new Map(D.a.map(function(a,i){return [String(a[0]).toLowerCase(),i]}));
+   var remap=j.algos.map(function(a){var k=String(a[0]).toLowerCase(),i=idx.get(k);if(i==null){i=D.a.length;D.a.push(a);idx.set(k,i)}return i});
+   var map=new Map(D.r.map(function(r){return [r[0]+'|'+r[1],r]})),ch=0;
+   j.rows.forEach(function(r){var i=remap[r[0]];if(i==null)return;var k=i+'|'+r[1],o=map.get(k);if(o&&o[2]===r[2])return;map.set(k,[i,r[1],r[2]]);ch++});
+   if(ch){D.r=Array.from(map.values()).sort(function(a,b){return a[1]-b[1]||a[0]-b[0]});refresh();toast('Synced '+ch.toLocaleString('en-IN')+' new/changed rows \u00b7 data till '+fmt(lastDay()))}
+   else if(manual)toast('Already up to date \u00b7 data till '+fmt(lastDay()));
+  }catch(e){if(manual)toast('Sync failed: '+(e&&e.message?e.message:e)+' (data.json must sit next to this page on your website)')}
+  finally{SYNC.busy=false}
+ };
+ function buildJson(){return JSON.stringify({v:1,updated:new Date().toISOString(),algos:D.a,rows:D.r})}
+ SYNC.exportFile=function(){
+  var b=new Blob([buildJson()],{type:'application/json'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download='data.json';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(a.href)},4000);toast('data.json downloaded \u2014 upload it to your GitHub repo');
+ };
+ function b64(str){var u=new TextEncoder().encode(str),o='',n=0x8000;for(var i=0;i<u.length;i+=n)o+=String.fromCharCode.apply(null,u.subarray(i,i+n));return btoa(o)}
+ function dlg(){
+  var d=$('#syncDlg');if(d)return d;d=document.createElement('div');d.id='syncDlg';d.className='noprint';
+  d.innerHTML='<div class="bx"><h3>Publish to GitHub</h3><p>One click from now on: this uploads <b>data.json</b> to your repository so the mobile page picks up the new data. Use a <b>fine-grained token</b> limited to this one repository with <b>Contents: Read and write</b>. It is stored only in this browser.</p><label>Repository (owner/name)<input id="sdRepo" placeholder="yourname/stratzy-dashboard" autocapitalize="off"></label><label>Branch<input id="sdBr" placeholder="main"></label><label>Token<input id="sdTok" type="password" placeholder="github_pat_..." autocomplete="off"></label><div class="ac"><button type="button" class="btn" id="sdClr">Forget token</button><button type="button" class="btn" id="sdX">Cancel</button><button type="button" class="btn" id="sdGo" style="background:#1f6feb;color:#fff;border-color:#1f6feb">Save &amp; publish</button></div></div>';
+  document.body.appendChild(d);
+  d.querySelector('#sdX').onclick=function(){d.classList.remove('on')};
+  d.querySelector('#sdClr').onclick=function(){localStorage.removeItem(SK);d.classList.remove('on');toast('Token removed from this browser')};
+  d.querySelector('#sdGo').onclick=function(){
+   var c={repo:d.querySelector('#sdRepo').value.trim(),branch:d.querySelector('#sdBr').value.trim()||'main',token:d.querySelector('#sdTok').value.trim()};
+   if(!/^[\w.-]+\/[\w.-]+$/.test(c.repo)||!c.token){toast('Enter repository as owner/name and paste the token');return}
+   localStorage.setItem(SK,JSON.stringify(c));d.classList.remove('on');SYNC.publish();
+  };
+  return d;
+ }
+ SYNC.publish=async function(){
+  var c=cfg();
+  if(!c.repo||!c.token){var d=dlg();d.querySelector('#sdRepo').value=c.repo||'';d.querySelector('#sdBr').value=c.branch||'main';d.classList.add('on');return}
+  var api='https://api.github.com/repos/'+c.repo+'/contents/data.json',br=c.branch||'main';
+  var h={Authorization:'Bearer '+c.token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+  try{
+   toast('Publishing\u2026');
+   var g=await fetch(api+'?ref='+encodeURIComponent(br),{headers:h,cache:'no-store'}),sha;
+   if(g.ok)sha=(await g.json()).sha;else if(g.status!==404)throw new Error(g.status===401||g.status===403?'GitHub rejected the token (check repo + Contents permission)':'GitHub error '+g.status);
+   var body={message:'Update data to '+fmt(lastDay()),content:b64(buildJson()),branch:br};if(sha)body.sha=sha;
+   var p=await fetch(api,{method:'PUT',headers:Object.assign({'Content-Type':'application/json'},h),body:JSON.stringify(body)});
+   if(!p.ok){var t='';try{t=(await p.json()).message}catch(e){}throw new Error('GitHub error '+p.status+(t?': '+t:''))}
+   toast('Published. Mobile will show data till '+fmt(lastDay())+' in about a minute.');
+  }catch(e){toast('Publish failed: '+(e&&e.message?e.message:e))}
+ };
+ window.STZ_SYNC=SYNC;
+ try{restoreReady.then(function(){SYNC.pull(false)})}catch(e){setTimeout(function(){SYNC.pull(false)},1500)}
+ document.addEventListener('visibilitychange',function(){if(!document.hidden&&Date.now()-SYNC.last>300000)SYNC.pull(false)});
  /* touch support for chart hover / drag-to-zoom (charts only listen to mouse events) */
  function tag(){document.querySelectorAll('svg').forEach(function(s){if(s.onmousemove&&!s.dataset.tz)s.dataset.tz=1})}
  function fire(t,e,type){var c=e.changedTouches[0];t.dispatchEvent(new MouseEvent(type,{bubbles:true,clientX:c.clientX,clientY:c.clientY}))}
